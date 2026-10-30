@@ -1,6 +1,4 @@
-# AURIX — Autonomous Vehicle Platform
-
-An experimental autonomous vehicle project built by developing the intelligence in software first and integrating physical hardware later.
+AURIX — Autonomous Urban Robotics & Intelligent eXploration:
 
 AURIX aims to combine:
 
