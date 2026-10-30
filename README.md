@@ -1,4 +1,4 @@
-AURIX — Autonomous Urban Robotics & Intelligent eXploration:
+#AURIX — Autonomous Urban Robotics & Intelligent eXploration:
 
 AURIX aims to combine:
 
