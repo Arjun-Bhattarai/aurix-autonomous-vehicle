@@ -8,3 +8,4 @@ class VehicleTelemetry(BaseModel):
     brake :bool = Field(default=False, description="True if the brake is engaged, False otherwise")
     is_connected:bool = Field(default=False, description="True if the vehicle is connected, False otherwise")
     mode:Literal["simulation", "hardware"]
+    emergency_stopped: bool = Field(default=False, description="True if the vehicle is in an emergency stop state, False otherwise")
