@@ -20,6 +20,7 @@ def test_simulated_vehicle():
 
     # Test emergency stop
     vehicle.emergency_stop()
+    assert vehicle.emergency_stopped is True
     state = vehicle.get_state()
     assert state.speed == 0.0
     assert state.throttle == 0.0
@@ -33,4 +34,48 @@ def test_control_values_are_clamped():
     state = vehicle.get_state()
 
     assert state.steering == 1.0
-    assert state.throttle == -1.0    
+    assert state.throttle == -1.0  
+def test_emergency_stop_latches_throttle():
+    vehicle = SimulatedVehicle()
+
+    vehicle.emergency_stop()
+    vehicle.set_throttle(0.8)
+
+    state = vehicle.get_state()
+
+    assert state.throttle == 0.0
+    assert state.brake is True
+    assert vehicle.emergency_stopped is True      
+
+def test_emergency_brake_cannot_be_released():
+    vehicle = SimulatedVehicle()
+
+    vehicle.emergency_stop()
+
+    vehicle.set_brake(False)
+
+    state = vehicle.get_state()
+
+    assert state.brake is True
+    assert state.throttle == 0.0
+    assert vehicle.emergency_stopped is True 
+
+def test_reset_emergency_stop():
+    vehicle = SimulatedVehicle()
+
+    vehicle.emergency_stop()
+    assert vehicle.emergency_stopped is True
+    assert vehicle.brake is True
+
+    vehicle.reset_emergency_stop()
+
+    state = vehicle.get_state()
+
+    assert vehicle.emergency_stopped is False
+    assert state.brake is False
+    assert state.speed == 0.0
+    assert state.throttle == 0.0
+
+    vehicle.set_throttle(0.5)
+    updated_state = vehicle.get_state()
+    assert updated_state.throttle == 0.5
