@@ -1,4 +1,4 @@
-# AURIX — Autonomous Urban Robotics & Intelligent eXploration
+# AURIX — Autonomous Urban Robotics & Intelligent eXploration:
 
 <p align="center">
   <strong>Building autonomous intelligence. Simulating decisions. Bringing robotics to life.</strong>
