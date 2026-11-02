@@ -10,7 +10,7 @@
 
 ---
 
-## Overview
+## Overview:
 
 **AURIX** is an experimental autonomous robotics project focused on developing a modular self-driving vehicle system by combining autonomous navigation, environmental perception, intelligent decision-making, and embedded control.
 
