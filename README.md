@@ -20,7 +20,7 @@ Starting with a 1:24 BMW M4 RC drift car, AURIX aims to evolve into a modular au
 
 Rather than building a simple remote-controlled car, the goal is to engineer an autonomous system where perception, planning, and control work together.
 
-## Core Objectives
+## Core Objectives:
 
 - **Autonomous Navigation:** Develop waypoint-based navigation, path planning, and movement strategies.
 - **Environmental Perception:** Process sensor data and camera input to understand the surrounding environment.
