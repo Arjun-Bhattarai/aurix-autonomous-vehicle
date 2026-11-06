@@ -1,4 +1,6 @@
 from app.vehicle.simulator import SimulatedVehicle
+
+
 def test_simulated_vehicle():
     vehicle = SimulatedVehicle()
 
@@ -25,6 +27,8 @@ def test_simulated_vehicle():
     assert state.speed == 0.0
     assert state.throttle == 0.0
     assert state.brake is True
+
+
 def test_control_values_are_clamped():
     vehicle = SimulatedVehicle()
 
@@ -34,7 +38,9 @@ def test_control_values_are_clamped():
     state = vehicle.get_state()
 
     assert state.steering == 1.0
-    assert state.throttle == -1.0  
+    assert state.throttle == -1.0
+
+
 def test_emergency_stop_latches_throttle():
     vehicle = SimulatedVehicle()
 
@@ -45,7 +51,8 @@ def test_emergency_stop_latches_throttle():
 
     assert state.throttle == 0.0
     assert state.brake is True
-    assert vehicle.emergency_stopped is True      
+    assert vehicle.emergency_stopped is True
+
 
 def test_emergency_brake_cannot_be_released():
     vehicle = SimulatedVehicle()
@@ -58,7 +65,8 @@ def test_emergency_brake_cannot_be_released():
 
     assert state.brake is True
     assert state.throttle == 0.0
-    assert vehicle.emergency_stopped is True 
+    assert vehicle.emergency_stopped is True
+
 
 def test_reset_emergency_stop():
     vehicle = SimulatedVehicle()
@@ -72,10 +80,47 @@ def test_reset_emergency_stop():
     state = vehicle.get_state()
 
     assert vehicle.emergency_stopped is False
-    assert state.brake is False
+    assert state.brake is False      # Brake is released on reset
     assert state.speed == 0.0
     assert state.throttle == 0.0
 
+    vehicle.set_throttle(0.5)
+    updated_state = vehicle.get_state()
+    assert updated_state.throttle == 0.5  # Throttle now succeeds
+
+
+def test_reset_communication_timeout():
+    vehicle = SimulatedVehicle()
+
+    # Simulate communication timeout state
+    vehicle.communication_timed_out = True
+    vehicle.brake = True
+
+    # Throttle should be blocked during timeout
+    vehicle.set_throttle(0.5)
+    state = vehicle.get_state()
+    assert state.throttle == 0.0
+    assert state.is_connected is False
+    assert state.communication_timed_out is True
+
+    # 1. Reset communication timeout flag
+    vehicle.reset_communication_timeout()
+
+    state_after_reset = vehicle.get_state()
+    assert state_after_reset.communication_timed_out is False
+    assert state_after_reset.is_connected is True
+    # Resetting timeout must NOT automatically release brake
+    assert state_after_reset.brake is True
+
+    # 2. Throttle must still be blocked because brake is still engaged
+    vehicle.set_throttle(0.5)
+    assert vehicle.get_state().throttle == 0.0
+
+    # 3. Explicitly release brake
+    vehicle.set_brake(False)
+    assert vehicle.get_state().brake is False
+
+    # 4. Fresh throttle command should now succeed
     vehicle.set_throttle(0.5)
     updated_state = vehicle.get_state()
     assert updated_state.throttle == 0.5
