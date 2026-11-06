@@ -9,3 +9,4 @@ class VehicleTelemetry(BaseModel):
     is_connected:bool = Field(default=False, description="True if the vehicle is connected, False otherwise")
     mode:Literal["simulation", "hardware"]
     emergency_stopped: bool = Field(default=False, description="True if the vehicle is in an emergency stop state, False otherwise")
+    communication_timed_out: bool = Field(default=False, description="True if the vehicle has experienced a communication timeout, False otherwise")
