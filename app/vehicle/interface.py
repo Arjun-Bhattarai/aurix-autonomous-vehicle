@@ -25,3 +25,23 @@ class VehicleInterface(ABC):
     def get_state(self) -> VehicleTelemetry:
         """Return the current vehicle telemetry."""
         pass
+    @abstractmethod
+    def get_last_command_time(self) -> float:
+        """Return the time of the last command."""
+        pass
+    @abstractmethod
+    def update(self) -> None:
+        """Update the vehicle's state."""
+        pass
+    @abstractmethod
+    def set_brake(self, engaged: bool) -> None:
+        """Set the brake state."""
+        pass
+    @abstractmethod
+    def reset_emergency_stop(self) -> None:
+        """Reset the emergency stop state."""
+        pass
+    @abstractmethod
+    def reset_communication_timeout(self) -> None:
+        """Reset the communication timeout state."""
+        pass
