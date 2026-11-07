@@ -1,3 +1,5 @@
+import time
+
 from app.vehicle.simulator import SimulatedVehicle
 
 
@@ -124,3 +126,55 @@ def test_reset_communication_timeout():
     vehicle.set_throttle(0.5)
     updated_state = vehicle.get_state()
     assert updated_state.throttle == 0.5
+
+
+
+def test_communication_watchdog_detects_timeout():
+    vehicle = SimulatedVehicle(command_timeout=0.1)
+    
+    # Make last_command_time stale
+    vehicle.last_command_time = time.monotonic() - 0.2
+    vehicle.update()
+    
+    state = vehicle.get_state()
+    assert state.brake is True
+    assert state.throttle == 0.0
+    assert state.communication_timed_out is True
+    assert state.is_connected is False
+
+   # Send a fresh heartbeat to satisfy the recovery precondition
+    vehicle.receive_heartbeat()
+
+    # Now reset should succeed
+    vehicle.reset_communication_timeout()
+    
+    state_after_reset = vehicle.get_state()
+    assert state_after_reset.communication_timed_out is False
+    assert state_after_reset.is_connected is True
+
+def test_receive_heartbeat_updates_timestamp():
+    vehicle = SimulatedVehicle()
+    initial_time = vehicle.last_command_time
+
+    time.sleep(0.01)  # Ensure some time has passed
+    vehicle.receive_heartbeat()
+
+    assert vehicle.last_command_time > initial_time
+
+
+def test_receive_heartbeat_does_not_clear_timeout():
+    vehicle = SimulatedVehicle(command_timeout=0.1)
+    
+    # Make last_command_time stale to trigger timeout
+    vehicle.last_command_time = time.monotonic() - 0.2
+    vehicle.update()
+    assert vehicle.brake is True
+    
+    assert vehicle.communication_timed_out is True
+
+    # Receive heartbeat, but do not send a fresh command
+    vehicle.receive_heartbeat()
+    assert vehicle.brake is True
+
+    # The timeout state should still be active
+    assert vehicle.communication_timed_out is True   
