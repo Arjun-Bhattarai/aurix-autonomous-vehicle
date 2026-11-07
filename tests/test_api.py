@@ -1,3 +1,4 @@
+import time
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
@@ -6,15 +7,19 @@ from app.vehicle.simulator import SimulatedVehicle
 
 
 @pytest.fixture
-def client():
-    """Provides a TestClient with an isolated, fresh SimulatedVehicle instance for every test."""
+def vehicle():
+    """Provides a fresh SimulatedVehicle instance and overrides the FastAPI dependency."""
     test_vehicle = SimulatedVehicle()
     app.dependency_overrides[get_vehicle] = lambda: test_vehicle
-    
+    yield test_vehicle
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def client(vehicle):
+    """Provides a TestClient connected to the overridden vehicle instance."""
     with TestClient(app) as c:
         yield c
-        
-    app.dependency_overrides.clear()
 
 
 def test_get_vehicle_state(client):
@@ -89,3 +94,33 @@ def test_reset_emergency_stop(client):
     assert reset_response.status_code == 200
     assert reset_response.json()["throttle"] == 0.7
     assert reset_response.json()["emergency_stopped"] is False
+
+
+def test_reset_communication_timeout_success(client, vehicle):  
+    vehicle.command_timeout = 0.1
+    vehicle.last_command_time = time.monotonic() - 0.2
+    vehicle.update()
+    assert vehicle.communication_timed_out is True
+    assert vehicle.brake is True
+    
+    # Satisfy the recovery precondition with a fresh command
+    vehicle.set_steering(0.0)
+
+    response = client.post("/api/v1/reset-communication-timeout")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["communication_timed_out"] is False
+    assert data["is_connected"] is True
+    assert data["brake"] is True  # Brake remains engaged after reset
+
+
+def test_reset_communication_timeout_reject(client, vehicle):
+    vehicle.command_timeout = 0.1
+    vehicle.last_command_time = time.monotonic() - 0.2
+    vehicle.update()
+
+    # Attempt reset without a fresh command; should fail
+    response = client.post("/api/v1/reset-communication-timeout")
+    assert response.status_code== 409
+    data = response.json()
+    assert "Cannot reset communication timeout" in data["detail"]
