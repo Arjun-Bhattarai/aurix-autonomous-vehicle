@@ -45,3 +45,8 @@ class VehicleInterface(ABC):
     def reset_communication_timeout(self) -> None:
         """Reset the communication timeout state."""
         pass
+
+    @abstractmethod
+    def receive_heartbeat(self) -> None:
+        """Simulate receiving a heartbeat from the controller."""
+        pass
