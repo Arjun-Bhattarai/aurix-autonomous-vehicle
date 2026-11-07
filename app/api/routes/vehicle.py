@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends
-
+from fastapi import APIRouter, Depends, HTTPException
 from app.vehicle.simulator import SimulatedVehicle
 from app.vehicle.interface import VehicleInterface
 from app.schemas.telemetry import VehicleTelemetry
@@ -42,4 +41,13 @@ def emergency_stop(vehicle: VehicleInterface = Depends(get_vehicle)):
 def reset_emergency_stop(vehicle: VehicleInterface = Depends(get_vehicle)):
     """Reset the emergency stop state of the vehicle."""
     vehicle.reset_emergency_stop()
+    return vehicle.get_state()
+
+@router.post("/reset-communication-timeout", response_model=VehicleTelemetry)
+def reset_communication_timeout(vehicle: VehicleInterface = Depends(get_vehicle)):
+    """Reset the communication timeout state of the vehicle."""
+    try:
+        vehicle.reset_communication_timeout()
+    except RuntimeError as e:
+        raise HTTPException(status_code=409, detail=str(e))
     return vehicle.get_state()
