@@ -26,15 +26,13 @@ class SimulatedVehicle(VehicleInterface):
         self.coasting_drag: float = 1.0
 
     def _heartbeat(self) -> None:
-        """Step 1: Strictly update the last command timestamp."""
+        """Strictly update the last command timestamp."""
         self.last_command_time = time.monotonic()
 
     def set_steering(self, value: float) -> None:
-        self._heartbeat()
         self.steering = max(-1.0, min(1.0, value))
 
     def set_throttle(self, value: float) -> None:
-        self._heartbeat()
         # Block throttle if brake, emergency stop, or communication timeout is active
         if self.brake or self.emergency_stopped or self.communication_timed_out:
             self.throttle = 0.0
@@ -42,9 +40,7 @@ class SimulatedVehicle(VehicleInterface):
         self.throttle = max(-1.0, min(1.0, value))
 
     def set_brake(self, engaged: bool) -> None:
-        """Step 2: Guard brake release against active emergency stop or active timeout."""
-        self._heartbeat()
-
+        """Guard brake release against active emergency stop or active timeout."""
         if not engaged and (self.emergency_stopped or self.communication_timed_out):
             return
 
@@ -53,22 +49,26 @@ class SimulatedVehicle(VehicleInterface):
             self.throttle = 0.0
 
     def emergency_stop(self) -> None:
-        self._heartbeat()
         self.emergency_stopped = True
         self.throttle = 0.0
         self.brake = True
         self.speed = 0.0
 
     def reset_emergency_stop(self) -> None:
-        self._heartbeat()
         self.emergency_stopped = False
         self.brake = False  # Keep brake engaged until explicitly released
         self.throttle = 0.0
         self.speed = 0.0
 
-    def reset_communication_timeout(self) -> None:
-        """Step 3: Reset the timeout flag without altering brake or throttle state."""
-        self._heartbeat()
+    def reset_communication_timeout(self):
+        time_since_last_command = time.monotonic() - self.last_command_time
+        
+        if time_since_last_command > self.command_timeout:
+            raise RuntimeError(
+                "Cannot reset communication timeout: "
+                "No fresh controller command received."
+            )
+        
         self.communication_timed_out = False
 
     def get_state(self) -> VehicleTelemetry:
@@ -110,3 +110,7 @@ class SimulatedVehicle(VehicleInterface):
 
     def get_last_command_time(self) -> float:
         return self.last_command_time
+
+    def receive_heartbeat(self) -> None:
+        """Simulate receiving an isolated heartbeat from the controller."""
+        self._heartbeat()
