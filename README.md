@@ -70,7 +70,7 @@ AURIX is designed around independent modules that communicate through well-defin
 
 The simulation and physical hardware implementations will share the same vehicle-control interface, allowing the autonomy system to transition between simulated and real-world environments.
 
-## Technology Stack
+## Technology Stack:
 
 | Technology | Purpose |
 |---|---|
