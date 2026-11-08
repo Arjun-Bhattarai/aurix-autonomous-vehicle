@@ -84,7 +84,7 @@ The simulation and physical hardware implementations will share the same vehicle
 | ESP32 | Embedded vehicle control |
 | C++ | Microcontroller firmware |
 
-## Project Structure
+## Project Structure:
 
 ```text
 aurix-autonomous-vehicle/
