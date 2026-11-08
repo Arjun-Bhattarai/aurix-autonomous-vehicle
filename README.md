@@ -31,8 +31,6 @@ Rather than building a simple remote-controlled car, the goal is to engineer an 
 - **Embedded Integration:** Connect the autonomous software to physical hardware using ESP32 and compatible motor-control electronics.
 
 ## System Architecture:
-
-
 AURIX is designed around independent modules that communicate through well-defined interfaces.
 
 ```text
