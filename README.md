@@ -220,7 +220,7 @@ AURIX is an evolving robotics engineering project, and its capabilities will exp
 
 ---
 
-## Author
+## Author:
 
 **Arjun Bhattarai**
 
@@ -228,12 +228,6 @@ AI & Backend Systems Enthusiast | Robotics & Autonomous Systems
 
 - GitHub: [@Arjun-Bhattarai](https://github.com/Arjun-Bhattarai)
 - Portfolio: [arjunbhattarai8.com.np](https://arjunbhattarai8.com.np)
-
----
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
