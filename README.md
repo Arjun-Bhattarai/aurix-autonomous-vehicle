@@ -190,7 +190,7 @@ Test vehicle behavior in controlled virtual environments before allowing the phy
 
 The project is currently focused on establishing the Python backend, vehicle-control interfaces, and simulation foundation. Physical hardware integration and autonomous navigation will follow in subsequent development phases.
 
-## Hardware Platform
+## Hardware Platform:
 
 The initial physical platform is a **1:24 BMW M4 Style RC Drift Car**.
 
