@@ -168,7 +168,7 @@ AURIX is being developed incrementally, with each phase building upon the previo
   - Control-system tuning.
   - Autonomous indoor track testing.
 
-## Development Philosophy
+## Development Philosophy:
 
 AURIX follows three fundamental principles:
 
