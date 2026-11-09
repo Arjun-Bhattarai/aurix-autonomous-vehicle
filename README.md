@@ -184,7 +184,7 @@ Keep perception, navigation, decision-making, and vehicle control independent so
 
 Test vehicle behavior in controlled virtual environments before allowing the physical vehicle to execute autonomous commands.
 
-## Current Development Status
+## Current Development Status:
 
 **Project stage:** Initial software architecture and simulation development.
 
