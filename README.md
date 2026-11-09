@@ -128,7 +128,7 @@ aurix-autonomous-vehicle/
 
 *The repository structure represents the intended architecture and will evolve as development progresses.*
 
-## Development Roadmap
+## Development Roadmap:
 
 AURIX is being developed incrementally, with each phase building upon the previous one.
 
