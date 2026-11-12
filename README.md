@@ -223,7 +223,7 @@ AURIX is an evolving robotics engineering project, and its capabilities will exp
 
 **Arjun Bhattarai**
 
-AI & Backend Systems Enthusiast | Robotics & Autonomous Systems
+AI & Backend Systems Enthusiast | Robotics & Autonomous Systems:
 
 - GitHub: [@Arjun-Bhattarai](https://github.com/Arjun-Bhattarai)
 - Portfolio: [arjunbhattarai8.com.np](https://arjunbhattarai8.com.np)
