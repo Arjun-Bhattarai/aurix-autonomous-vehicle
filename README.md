@@ -204,7 +204,7 @@ Planned hardware components include:
 
 Hardware specifications and component selection will be finalized after evaluating the original vehicle electronics.
 
-## Future Vision
+## Future Vision:
 
 The long-term goal of AURIX is to develop an autonomous vehicle capable of:
 
