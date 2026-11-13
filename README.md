@@ -1,11 +1,11 @@
 # AURIX — Autonomous Urban Robotics & Intelligent eXploration:
 
 <p align="center">
-  <strong>Building autonomous intelligence. Simulating decisions. Bringing robotics to life.</strong>
+  <b><strong>Building autonomous intelligence. Simulating decisions. Bringing robotics to life.</strong></b>
 </p>
 
 <p align="center">
-  <em>An experimental autonomous vehicle platform starting with a 1:24 BMW M4 RC drift car.</em>
+ <b> <em>An experimental autonomous vehicle platform starting with a 1:24 BMW M4 RC drift car.</em></b>
 </p>
 
 ---
