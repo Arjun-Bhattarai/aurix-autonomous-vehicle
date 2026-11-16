@@ -1,236 +1,288 @@
-# AURIX — Autonomous Urban Robotics & Intelligent eXploration:
+<div align="center">
 
-<p align="center">
-  <b><strong>Building autonomous intelligence. Simulating decisions. Bringing robotics to life.</strong></b>
+
+# 🏎️ AURIX
+### **A**utonomous **U**rban **R**obotics & **I**ntelligent e**X**ploration
+
+<p>
+  <strong>Building autonomous intelligence. Simulating decisions. Bringing robotics to life.</strong>
 </p>
 
-<p align="center">
- <b> <em>An experimental autonomous vehicle platform starting with a 1:24 BMW M4 RC drift car.</em></b>
+<p>
+  <em>An experimental autonomous vehicle platform starting with a 1:24 BMW M4 RC drift car.</em>
 </p>
+
+<!-- Status & Tech Badges -->
+<p>
+  <img src="https://img.shields.io/badge/Status-In_Development-blue?style=for-the-badge" alt="Status" />
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/OpenCV-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white" alt="OpenCV" />
+  <img src="https://img.shields.io/badge/ESP32-E7352C?style=for-the-badge&logo=espressif&logoColor=white" alt="ESP32" />
+  <img src="https://img.shields.io/badge/C++-00599C?style=for-the-badge&logo=cplusplus&logoColor=white" alt="C++" />
+</p>
+
+<p>
+  <a href="#-overview">Overview</a> •
+  <a href="#-system-architecture">Architecture</a> •
+  <a href="#-technology-stack">Tech Stack</a> •
+  <a href="#-project-structure">Structure</a> •
+  <a href="#-development-roadmap">Roadmap</a> •
+  <a href="#-hardware-platform">Hardware</a>
+</p>
+
+</div>
 
 ---
 
-## Overview:
+## 📖 Overview
 
-**AURIX** is an experimental autonomous robotics project focused on developing a modular self-driving vehicle system by combining autonomous navigation, environmental perception, intelligent decision-making, and embedded control.
+**AURIX** is an experimental autonomous robotics project focused on engineering a modular self-driving vehicle system by combining environmental perception, intelligent decision-making, autonomous navigation, and embedded control.
 
-The project follows a **software-first development approach**: vehicle intelligence is developed and tested in simulation before being deployed to physical hardware.
+> [!NOTE]
+> **Software-First Philosophy:** Rather than starting with hardware trial-and-error, AURIX validates vehicle intelligence inside a virtual simulation environment before deploying a single command to physical motors.
 
-Starting with a 1:24 BMW M4 RC drift car, AURIX aims to evolve into a modular autonomous vehicle platform capable of understanding its environment, planning movements, avoiding obstacles, and executing driving commands independently.
+Starting with a **1:24 BMW M4 RC drift car**, AURIX is designed to evolve into a scalable autonomous platform capable of understanding its surroundings, planning trajectories, avoiding obstacles, and executing real-time driving commands independently.
 
-Rather than building a simple remote-controlled car, the goal is to engineer an autonomous system where perception, planning, and control work together.
+---
 
-## Core Objectives:
+## 🎯 Core Objectives
 
-- **Autonomous Navigation:** Develop waypoint-based navigation, path planning, and movement strategies.
-- **Environmental Perception:** Process sensor data and camera input to understand the surrounding environment.
-- **Obstacle Avoidance:** Detect obstacles and make safe driving decisions dynamically.
-- **Intelligent Decision-Making:** Develop a modular autonomy engine for interpreting environmental information and selecting actions.
-- **Vehicle Control:** Implement steering, throttle, braking, and motion control.
-- **Simulation:** Build a virtual testing environment to validate vehicle behavior before hardware deployment.
-- **Embedded Integration:** Connect the autonomous software to physical hardware using ESP32 and compatible motor-control electronics.
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🧭 Autonomous Navigation</h3>
+      <p>Develop waypoint-based navigation, path planning algorithms, and dynamic movement strategies.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h3>👁️ Environmental Perception</h3>
+      <p>Process proximity sensor data and live camera feeds to map and understand the surrounding environment.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🛡️ Obstacle Avoidance</h3>
+      <p>Detect static and dynamic obstacles in real time and compute safe, collision-free maneuvers.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h3>🧠 Intelligent Decision-Making</h3>
+      <p>Build a modular autonomy engine to interpret telemetry and select optimal driving states.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🎮 Vehicle Control</h3>
+      <p>Implement precision steering, throttle, braking, and closed-loop motion control.</p>
+    </td>
+    <td width="50%" valign="top">
+      <h3>🖥️ Simulation & Embedded</h3>
+      <p>Validate behavior in a virtual physics sandbox before deploying via ESP32 and motor-control electronics.</p>
+    </td>
+  </tr>
+</table>
 
-## System Architecture:
-AURIX is designed around independent modules that communicate through well-defined interfaces.
+---
+
+## 🏗️ System Architecture
+
+AURIX is built around decoupled modules that communicate through strict, well-defined interfaces. Both the **Simulation Engine** and **Physical Hardware** share the exact same control interface, enabling seamless *Sim-to-Real* transitions.
 
 ```text
-             AUTONOMOUS VEHICLE SYSTEM
-                       |
-              +--------v--------+
-              |   Perception    |
-              | Sensors / Vision|
-              +--------+--------+
-                       |
-              +--------v--------+
-              |  Decision Engine|
-              |  Autonomy Logic |
-              +--------+--------+
-                       |
-              +--------v--------+
-              | Navigation &    |
-              | Path Planning   |
-              +--------+--------+
-                       |
-              +--------v--------+
-              | Vehicle Control |
-              | Steering/Throttle|
-              +--------+--------+
-                       |
-              +--------v--------+
-              | Vehicle Interface|
-              +--------+--------+
-                       |
-             +---------+---------+
-             |                   |
-       +-----v------+      +-----v------+
-       | Simulation |      |  Physical  |
-       |   Engine   |      |  Hardware  |
-       +------------+      +------------+
+                    ┌───────────────────────────────────┐
+                    │     AUTONOMOUS VEHICLE SYSTEM     │
+                    └─────────────────┬─────────────────┘
+                                      │
+                                      ▼
+                    ┌───────────────────────────────────┐
+                    │         Perception Layer          │
+                    │     Sensors & Computer Vision     │
+                    └─────────────────┬─────────────────┘
+                                      │
+                                      ▼
+                    ┌───────────────────────────────────┐
+                    │          Decision Engine          │
+                    │    State Machine & Autonomy Logic │
+                    └─────────────────┬─────────────────┘
+                                      │
+                                      ▼
+                    ┌───────────────────────────────────┐
+                    │    Navigation & Path Planning     │
+                    │   Waypoints & Obstacle Avoidance  │
+                    └─────────────────┬─────────────────┘
+                                      │
+                                      ▼
+                    ┌───────────────────────────────────┐
+                    │          Vehicle Control          │
+                    │     Steering, Throttle & Braking  │
+                    └─────────────────┬─────────────────┘
+                                      │
+                                      ▼
+                    ┌───────────────────────────────────┐
+                    │     Unified Vehicle Interface     │
+                    └─────────────────┬─────────────────┘
+                                      │
+                        ┌─────────────┴─────────────┐
+                        ▼                           ▼
+          ┌───────────────────────────┐ ┌───────────────────────────┐
+          │     Simulation Engine     │ │     Physical Hardware     │
+          │  (Virtual Test Sandbox)   │ │  (1:24 BMW M4 + ESP32)    │
+          └───────────────────────────┘ └───────────────────────────┘
 ```
 
-The simulation and physical hardware implementations will share the same vehicle-control interface, allowing the autonomy system to transition between simulated and real-world environments.
+---
 
-## Technology Stack:
+## 🛠️ Technology Stack
 
-| Technology | Purpose |
-|---|---|
-| Python | Core application and autonomy logic |
-| FastAPI | Vehicle control API and backend services |
-| Pydantic | Data validation and structured communication |
-| NumPy | Numerical computations and sensor processing |
-| OpenCV | Computer vision and image processing |
-| WebSockets | Real-time telemetry communication |
-| Pytest | Automated testing |
-| ESP32 | Embedded vehicle control |
-| C++ | Microcontroller firmware |
+| Layer | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Core & Autonomy** | ![Python](https://img.shields.io/badge/-Python-3776AB?style=flat-square&logo=python&logoColor=white) | Core application logic, state machines, and autonomy algorithms |
+| **Backend & API** | ![FastAPI](https://img.shields.io/badge/-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white) | High-performance vehicle control API and backend services |
+| **Data Validation** | ![Pydantic](https://img.shields.io/badge/-Pydantic-E92063?style=flat-square&logo=pydantic&logoColor=white) | Strict schema enforcement and structured inter-module telemetry |
+| **Math & Telemetry** | ![NumPy](https://img.shields.io/badge/-NumPy-013243?style=flat-square&logo=numpy&logoColor=white) | Vectorized kinematics, numerical computations, and sensor filtering |
+| **Computer Vision** | ![OpenCV](https://img.shields.io/badge/-OpenCV-5C3EE8?style=flat-square&logo=opencv&logoColor=white) | Real-time image processing, lane tracking, and object detection |
+| **Real-Time Comms** | ![WebSockets](https://img.shields.io/badge/-WebSockets-010101?style=flat-square&logo=socket.io&logoColor=white) | Low-latency bidirectional telemetry and remote command streaming |
+| **Testing** | ![Pytest](https://img.shields.io/badge/-Pytest-0A9EDC?style=flat-square&logo=pytest&logoColor=white) | Automated unit and integration testing for autonomy modules |
+| **Embedded & Firmware** | ![ESP32](https://img.shields.io/badge/-ESP32_%2F_C++-E7352C?style=flat-square&logo=espressif&logoColor=white) | Microcontroller firmware, PWM actuation, and hardware interfacing |
 
-## Project Structure:
+---
+
+## 📂 Project Structure
 
 ```text
 aurix-autonomous-vehicle/
 │
-├── app/
-│   ├── api/
-│   │   ├── routes/
-│   │   └── websocket.py
+├── 📁 app/
+│   ├── 📁 api/                 # REST endpoints & real-time telemetry streams
+│   │   ├── 📁 routes/
+│   │   └── 📄 websocket.py
 │   │
-│   ├── autonomy/
-│   │   ├── decision_engine.py
-│   │   ├── obstacle_avoidance.py
-│   │   └── path_planning.py
+│   ├── 📁 autonomy/            # Core intelligence & navigation algorithms
+│   │   ├── 📄 decision_engine.py
+│   │   ├── 📄 obstacle_avoidance.py
+│   │   └── 📄 path_planning.py
 │   │
-│   ├── perception/
-│   │   ├── sensors.py
-│   │   └── vision.py
+│   ├── 📁 perception/          # Sensor fusion & computer vision pipelines
+│   │   ├── 📄 sensors.py
+│   │   └── 📄 vision.py
 │   │
-│   ├── vehicle/
-│   │   ├── controller.py
-│   │   ├── simulator.py
-│   │   └── hardware_interface.py
+│   ├── 📁 vehicle/             # Unified vehicle abstraction & drivers
+│   │   ├── 📄 controller.py
+│   │   ├── 📄 simulator.py
+│   │   └── 📄 hardware_interface.py
 │   │
-│   ├── schemas/
-│   ├── core/
-│   └── main.py
+│   ├── 📁 schemas/             # Pydantic data models
+│   ├── 📁 core/                # App configuration & logging
+│   └── 📄 main.py              # FastAPI entry point
 │
-├── simulation/
-├── firmware/
-│   └── esp32/
+├── 📁 simulation/              # Virtual environment & physics models
+├── 📁 firmware/
+│   └── 📁 esp32/               # C++ microcontroller source code
 │
-├── tests/
-├── docs/
-├── scripts/
+├── 📁 tests/                   # Automated test suite
+├── 📁 docs/                    # Architecture diagrams & technical notes
+├── 📁 scripts/                 # Utility & calibration scripts
 │
-├── requirements.txt
-├── pyproject.toml
-├── README.md
-└── LICENSE
+├── 📄 requirements.txt
+├── 📄 pyproject.toml
+├── 📄 README.md
+└── 📄 LICENSE
 ```
 
-*The repository structure represents the intended architecture and will evolve as development progresses.*
-
-## Development Roadmap:
-
-AURIX is being developed incrementally, with each phase building upon the previous one.
-
-- [ ] **Phase 1 — Software Foundation**
-  - FastAPI application and API architecture.
-  - Vehicle control interfaces.
-  - Pydantic schemas and configuration.
-  - Initial automated tests.
-
-- [ ] **Phase 2 — Vehicle Simulation**
-  - Simulated vehicle dynamics.
-  - Steering and throttle behavior.
-  - Position and velocity tracking.
-  - Virtual sensor readings.
-
-- [ ] **Phase 3 — Autonomous Navigation**
-  - Waypoint navigation.
-  - Path planning.
-  - Obstacle detection and avoidance.
-  - Autonomous decision-making.
-
-- [ ] **Phase 4 — Computer Vision**
-  - Camera integration.
-  - Image processing with OpenCV.
-  - Track and object detection.
-  - Visual navigation.
-
-- [ ] **Phase 5 — Embedded Hardware Integration**
-  - ESP32 firmware.
-  - Motor-driver integration.
-  - Steering and throttle control.
-  - Sensor integration and telemetry.
-
-- [ ] **Phase 6 — Real-World Autonomous Testing**
-  - Physical vehicle deployment.
-  - Simulation-to-reality validation.
-  - Control-system tuning.
-  - Autonomous indoor track testing.
-
-## Development Philosophy:
-
-AURIX follows three fundamental principles:
-
-**1. Software Before Hardware**
-
-Develop and validate the autonomous driving logic before investing in the complete hardware setup.
-
-**2. Modular Engineering**
-
-Keep perception, navigation, decision-making, and vehicle control independent so individual components can be improved without redesigning the entire system.
-
-**3. Simulation Before Deployment**
-
-Test vehicle behavior in controlled virtual environments before allowing the physical vehicle to execute autonomous commands.
-
-## Current Development Status:
-
-**Project stage:** Initial software architecture and simulation development.
-
-The project is currently focused on establishing the Python backend, vehicle-control interfaces, and simulation foundation. Physical hardware integration and autonomous navigation will follow in subsequent development phases.
-
-## Hardware Platform:
-
-The initial physical platform is a **1:24 BMW M4 Style RC Drift Car**.
-
-Planned hardware components include:
-
-- ESP32 microcontroller.
-- Existing RC drive motor and steering mechanism, subject to compatibility.
-- Distance and proximity sensors.
-- Camera module for visual perception.
-- Suitable motor drivers and power regulation.
-
-Hardware specifications and component selection will be finalized after evaluating the original vehicle electronics.
-
-## Future Vision:
-
-The long-term goal of AURIX is to develop an autonomous vehicle capable of:
-
-- Understanding its surrounding environment.
-- Navigating predefined and dynamically selected routes.
-- Detecting and responding to obstacles.
-- Making independent movement decisions.
-- Executing controlled driving actions.
-- Operating through a modular software and embedded hardware architecture.
-
-AURIX is an evolving robotics engineering project, and its capabilities will expand as development and experimentation progress.
+> *Note: The repository structure reflects the intended modular architecture and will evolve as development progresses.*
 
 ---
 
-## Author:
+## 🗺️ Development Roadmap
 
-**Arjun Bhattarai**
+AURIX is developed incrementally, with each phase validating core capabilities before moving up the stack.
 
-AI & Backend Systems Enthusiast | Robotics & Autonomous Systems:
+| Phase | Milestone | Key Deliverables | Status |
+| :---: | :--- | :--- | :---: |
+| **01** | **Software Foundation** | FastAPI backend, unified vehicle interfaces, Pydantic schemas, initial Pytest suite | 🟡 *In Progress* |
+| **02** | **Vehicle Simulation** | 2D vehicle dynamics, steering/throttle physics, odometry tracking, virtual sensors | ⚪ *Planned* |
+| **03** | **Autonomous Navigation** | Waypoint following, path planning, dynamic obstacle avoidance, decision engine | ⚪ *Planned* |
+| **04** | **Computer Vision** | Camera feed ingestion, OpenCV processing pipelines, track & object detection | ⚪ *Planned* |
+| **05** | **Embedded Integration** | ESP32 C++ firmware, motor-driver PWM control, hardware sensor telemetry | ⚪ *Planned* |
+| **06** | **Real-World Testing** | Hardware deployment, Sim-to-Real calibration, PID tuning, indoor track runs | ⚪ *Planned* |
 
-- GitHub: [@Arjun-Bhattarai](https://github.com/Arjun-Bhattarai)
-- Portfolio: [arjunbhattarai8.com.np](https://arjunbhattarai8.com.np)
+<details>
+<summary><b>📋 Click to expand detailed phase checklists</b></summary>
+<br>
+
+- **Phase 1 — Software Foundation**
+  - [ ] FastAPI application and API architecture
+  - [ ] Abstract vehicle control interfaces
+  - [ ] Pydantic schemas and environment configuration
+  - [ ] Initial automated unit tests
+
+- **Phase 2 — Vehicle Simulation**
+  - [ ] Simulated vehicle kinematics & dynamics
+  - [ ] Steering and throttle response curves
+  - [ ] Position, heading, and velocity tracking
+  - [ ] Virtual proximity & distance sensor readings
+
+- **Phase 3 — Autonomous Navigation**
+  - [ ] Waypoint navigation controller
+  - [ ] Local & global path planning
+  - [ ] Obstacle detection and avoidance logic
+  - [ ] State-machine autonomous decision-making
+
+- **Phase 4 — Computer Vision**
+  - [ ] Camera streaming integration
+  - [ ] Image preprocessing with OpenCV
+  - [ ] Track boundary and obstacle detection
+  - [ ] Vision-assisted navigation
+
+- **Phase 5 — Embedded Hardware Integration**
+  - [ ] ESP32 firmware architecture
+  - [ ] Motor-driver (H-Bridge/ESC) integration
+  - [ ] Servo steering and throttle actuation
+  - [ ] Real-time sensor integration and telemetry uplink
+
+- **Phase 6 — Real-World Autonomous Testing**
+  - [ ] Full physical vehicle assembly & deployment
+  - [ ] Simulation-to-reality behavioral validation
+  - [ ] Control-system and PID tuning
+  - [ ] Autonomous indoor track testing
+
+</details>
 
 ---
 
-<p align="center">
+## 💡 Engineering Philosophy
+
+1. **💻 Software Before Hardware** — Develop, benchmark, and debug the autonomous driving stack in software before committing to physical hardware constraints.
+2. **🧩 Modular Engineering** — Keep perception, planning, decision-making, and actuation strictly decoupled so individual subsystems can be upgraded independently.
+3. **🧪 Simulation Before Deployment** — Validate edge cases and obstacle avoidance behavior in controlled virtual environments before executing commands on physical motors.
+
+---
+
+## 🏎️ Hardware Platform
+
+The initial physical testbed is a **1:24 Scale BMW M4 Style RC Drift Car**, chosen for its compact footprint and agile steering geometry—ideal for indoor autonomous navigation experiments.
+
+### Planned Bill of Materials (BOM)
+* **Compute & Comms:** ESP32 Microcontroller (Wi-Fi / Serial telemetry & PWM control)
+* **Actuation:** Stock RC drive motor & steering servo/mechanism *(subject to electrical characterization)*
+* **Perception:** Ultrasonic / Time-of-Flight (ToF) distance sensors + lightweight camera module
+* **Power & Drive:** Dual H-Bridge motor driver & regulated LiPo battery distribution
+
+> [!IMPORTANT]
+> **Current Status:** AURIX is currently in **Phase 1 & 2** (establishing the Python backend, control interfaces, and simulation foundation). Final hardware component selection will be locked in once initial chassis electronics characterization is complete.
+
+---
+
+## 👨‍💻 Author
+
+**Arjun Bhattarai**  
+*AI & Backend Systems Enthusiast | Robotics & Autonomous Systems*
+
+[![GitHub](https://img.shields.io/badge/GitHub-@Arjun--Bhattarai-181717?style=for-the-badge&logo=github)](https://github.com/Arjun-Bhattarai)
+[![Portfolio](https://img.shields.io/badge/Portfolio-arjunbhattarai8.com.np-0A66C2?style=for-the-badge&logo=google-chrome&logoColor=white)](https://arjunbhattarai8.com.np)
+
+---
+
+<div align="center">
   <strong>AURIX</strong><br>
   <em>From remote control to autonomous intelligence.</em>
-</p>
+</div>
