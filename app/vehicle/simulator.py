@@ -72,15 +72,17 @@ class SimulatedVehicle(VehicleInterface):
         self.communication_timed_out = False
 
     def get_state(self) -> VehicleTelemetry:
+        is_connected=(time.monotonic() - self.last_command_time) <= self.command_timeout #yesla chai heartbeat check garxa fresh xa ke xaina vanera 
         return VehicleTelemetry(
             speed=self.speed,
             steering=self.steering,
             throttle=self.throttle,
             brake=self.brake,
-            is_connected=not self.communication_timed_out,
+            is_connected=is_connected,
             mode="simulation",
             emergency_stopped=self.emergency_stopped,
             communication_timed_out=self.communication_timed_out,
+            
         )
 
     def update(self) -> None:
