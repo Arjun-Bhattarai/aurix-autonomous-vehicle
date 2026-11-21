@@ -9,6 +9,7 @@ router = APIRouter()
 
 _shared_vehicle = SimulatedVehicle()
 
+
 def get_vehicle() -> VehicleInterface:
     """Provides the shared vehicle instance for dependency injection."""
     return _shared_vehicle
@@ -21,12 +22,24 @@ def get_vehicle_state(vehicle: VehicleInterface = Depends(get_vehicle)):
 
 
 @router.post("/control", response_model=VehicleTelemetry)
-def control_vehicle(command: VehicleCommand, vehicle: VehicleInterface = Depends(get_vehicle)):
+def control_vehicle(
+    command: VehicleCommand, vehicle: VehicleInterface = Depends(get_vehicle)
+):
     """Control the vehicle using the provided command."""
+    state = vehicle.get_state()
+    if state.emergency_stopped:
+        raise HTTPException(
+            status_code=409,
+            detail="Cannot control vehicle while emergency stop is active",
+        )
+    if state.communication_timed_out:
+        raise HTTPException(
+            status_code=409,
+            detail="Cannot control vehicle while communication timeout is active",
+        )
     vehicle.set_steering(command.steering)
     vehicle.set_brake(command.brake)
     vehicle.set_throttle(command.throttle)
-
     return vehicle.get_state()
 
 
@@ -43,6 +56,7 @@ def reset_emergency_stop(vehicle: VehicleInterface = Depends(get_vehicle)):
     vehicle.reset_emergency_stop()
     return vehicle.get_state()
 
+
 @router.post("/reset-communication-timeout", response_model=VehicleTelemetry)
 def reset_communication_timeout(vehicle: VehicleInterface = Depends(get_vehicle)):
     """Reset the communication timeout state of the vehicle."""
@@ -50,4 +64,11 @@ def reset_communication_timeout(vehicle: VehicleInterface = Depends(get_vehicle)
         vehicle.reset_communication_timeout()
     except RuntimeError as e:
         raise HTTPException(status_code=409, detail=str(e))
+    return vehicle.get_state()
+
+
+@router.post("/heartbeat", response_model=VehicleTelemetry)
+def receive_heartbeat(vehicle: VehicleInterface = Depends(get_vehicle)):
+    """Simulate receiving a heartbeat from the controller."""
+    vehicle.receive_heartbeat()
     return vehicle.get_state()
