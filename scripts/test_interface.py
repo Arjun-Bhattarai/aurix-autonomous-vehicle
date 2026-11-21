@@ -2,6 +2,7 @@ from app.vehicle.interface import VehicleInterface
 from app.schemas.telemetry import VehicleTelemetry
 import pytest
 
+
 def test_vehicle_interface_methods():
     class TestVehicle(VehicleInterface):
         def __init__(self):
@@ -9,6 +10,7 @@ def test_vehicle_interface_methods():
             self.throttle = 0.0
             self.speed = 0.0
             self.brake = False
+            self.last_heartbeat_time: float | None = None
 
         def set_steering(self, value: float) -> None:
             self.steering = value
@@ -28,22 +30,29 @@ def test_vehicle_interface_methods():
                 throttle=self.throttle,
                 brake=self.brake,
                 is_connected=True,
-                mode="simulation"
+                mode="simulation",
             )
+
         def set_brake(self, engaged: bool) -> None:
             self.brake = engaged
 
         def reset_emergency_stop(self) -> None:
             self.brake = False
             self.throttle = 0.0
-            self.speed = 0.0   
+            self.speed = 0.0
 
         def reset_communication_timeout(self) -> None:
             pass
+
         def get_last_command_time(self) -> float:
             return 0.0
+        """Get the time of the last command received."""
+
+        def receive_heartbeat(self, timestamp: float | None = None) -> None:
+            self.last_heartbeat_time = timestamp
+
         def update(self) -> None:
-            pass     
+            pass
 
     vehicle = TestVehicle()
     vehicle.set_steering(0.5)
@@ -92,11 +101,11 @@ def test_incomplete_vehicle_cannot_be_instantiated():
                 throttle=0.0,
                 brake=False,
                 is_connected=True,
-                mode="simulation"
+                mode="simulation",
             )
+
         def set_brake(self, engaged: bool) -> None:
             pass
 
     with pytest.raises(TypeError, match="abstract"):
         IncompleteVehicle()
-    
