@@ -1,10 +1,21 @@
+import math
 import time
+import pytest
+from pytest import raises
 from app.vehicle.interface import VehicleInterface
 from app.schemas.telemetry import VehicleTelemetry
 
 
 class SimulatedVehicle(VehicleInterface):
     def __init__(self, command_timeout: float = 2.0):
+        if isinstance(command_timeout, bool) or not isinstance(command_timeout, (int, float)):
+            raise TypeError(
+                f"command_timeout must be a number, got {type(command_timeout).__name__}"
+            )
+        if not math.isfinite(command_timeout) or command_timeout <= 0:
+            raise ValueError(
+                f"command_timeout must be a finite number greater than 0 seconds, got {command_timeout}"
+            )
         self.steering: float = 0.0
         self.throttle: float = 0.0
         self.speed: float = 0.0
