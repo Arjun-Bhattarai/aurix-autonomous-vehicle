@@ -1,4 +1,5 @@
 import time
+from pytest import raises
 
 from app.vehicle.simulator import SimulatedVehicle
 
@@ -178,3 +179,63 @@ def test_receive_heartbeat_does_not_clear_timeout():
 
     # The timeout state should still be active
     assert vehicle.communication_timed_out is True   
+
+
+def test_receive_heartbeat_does_not_release_brake():
+    vehicle = SimulatedVehicle(command_timeout=0.1)
+    
+    # Make last_command_time stale to trigger timeout
+    vehicle.last_command_time = time.monotonic() - 0.2
+    vehicle.update()
+    assert vehicle.brake is True
+    
+    assert vehicle.communication_timed_out is True
+
+    # Receive heartbeat, but do not send a fresh command
+    vehicle.receive_heartbeat()
+    assert vehicle.brake is True
+
+    # The brake should still be engaged
+    assert vehicle.get_state().brake is True
+
+def test_connection_status_before_watchdog_update():
+    vehicle = SimulatedVehicle(command_timeout=0.1)
+
+    assert vehicle.get_state().is_connected is True
+
+    vehicle.last_command_time = time.monotonic() - 0.2
+
+    assert vehicle.get_state().is_connected is False
+    assert vehicle.get_state().communication_timed_out is False
+
+    vehicle.update()
+
+    assert vehicle.get_state().is_connected is False
+    assert vehicle.get_state().communication_timed_out is True 
+
+def test_heartbeat_requires_explicit_timeout_reset():
+    vehicle = SimulatedVehicle(command_timeout=0.1)
+
+    vehicle.last_command_time = time.monotonic() - 0.2
+    vehicle.update()
+    assert vehicle.get_state().communication_timed_out is True
+
+    vehicle.receive_heartbeat()
+    assert vehicle.get_state().communication_timed_out is True
+    assert vehicle.get_state().is_connected is True
+    assert vehicle.get_state().brake is True
+
+    vehicle.reset_communication_timeout()
+    assert vehicle.get_state().communication_timed_out is False
+    assert vehicle.get_state().is_connected is True
+    assert vehicle.get_state().brake is True 
+
+def test_reset_communication_timeout_requires_fresh_heartbeat():
+    vehicle = SimulatedVehicle(command_timeout=0.1)
+
+    vehicle.last_command_time = time.monotonic() - 0.2
+    vehicle.update()
+    assert vehicle.get_state().communication_timed_out is True
+    with raises(RuntimeError, match="Cannot reset communication timeout: No fresh controller command received."):
+        vehicle.reset_communication_timeout()
+    assert vehicle.get_state().communication_timed_out is True    
