@@ -1,4 +1,5 @@
 import time
+import pytest
 from pytest import raises
 
 from app.vehicle.simulator import SimulatedVehicle
@@ -15,6 +16,10 @@ def test_simulated_vehicle():
     assert state.brake is False
     assert state.is_connected is True
     assert state.mode == "simulation"
+
+ 
+
+    
 
     # Test setting steering and throttle
     vehicle.set_steering(0.5)
@@ -236,6 +241,40 @@ def test_reset_communication_timeout_requires_fresh_heartbeat():
     vehicle.last_command_time = time.monotonic() - 0.2
     vehicle.update()
     assert vehicle.get_state().communication_timed_out is True
+    assert vehicle.get_state().is_connected is False
+    assert vehicle.get_state().brake is True
+
     with raises(RuntimeError, match="Cannot reset communication timeout: No fresh controller command received."):
         vehicle.reset_communication_timeout()
     assert vehicle.get_state().communication_timed_out is True    
+
+def test_command_timeout_positive_accepted():
+    vehicle = SimulatedVehicle(command_timeout=5.0)
+    assert vehicle.command_timeout == 5.0
+
+
+def test_command_timeout_zero_raises_value_error():
+    with pytest.raises(ValueError):
+        SimulatedVehicle(command_timeout=0)
+
+
+def test_command_timeout_negative_raises_value_error():
+    with pytest.raises(ValueError):
+        SimulatedVehicle(command_timeout=-1)  
+
+def test_command_timeout_string_raises_type_error():
+    with pytest.raises(TypeError):
+        SimulatedVehicle(command_timeout="5")
+
+def test_command_timeout_nan_raises_value_error():
+    with pytest.raises(ValueError):
+        SimulatedVehicle(command_timeout=float("nan"))
+
+def test_command_timeout_pos_inf_raises_value_error():
+    with pytest.raises(ValueError):
+        SimulatedVehicle(command_timeout=float("inf"))
+
+
+def test_command_timeout_neg_inf_raises_value_error():
+    with pytest.raises(ValueError):
+        SimulatedVehicle(command_timeout=float("-inf"))        
