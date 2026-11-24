@@ -19,6 +19,7 @@ class SimulatedVehicle(VehicleInterface):
         self.steering: float = 0.0
         self.throttle: float = 0.0
         self.speed: float = 0.0
+        self.heading: float = 0.0
         self.brake: bool = False
         self.emergency_stopped: bool = False
 
@@ -93,7 +94,7 @@ class SimulatedVehicle(VehicleInterface):
             mode="simulation",
             emergency_stopped=self.emergency_stopped,
             communication_timed_out=self.communication_timed_out,
-            
+            last_command_time=self.last_command_time
         )
 
     def update(self) -> None:
@@ -111,15 +112,24 @@ class SimulatedVehicle(VehicleInterface):
         if self.emergency_stopped:
             self.speed = 0.0
             return
-
-        # Apply physics based on current vehicle state
-        if self.brake or self.communication_timed_out:
-            self.speed = max(0.0, self.speed - self.braking_rate * delta_time)
-        elif self.throttle > 0:
+        if self.emergency_stopped:
+            self.speed = 0.0
+        elif self.brake or self.communication_timed_out:
+            decel = self.braking_rate * delta_time
+            if self.speed > 0.0:
+                self.speed = max(0.0, self.speed - decel)
+            elif self.speed < 0.0:
+                self.speed = min(0.0, self.speed + decel)
+        elif self.throttle != 0:
             self.speed += self.throttle * self.acceleration_rate * delta_time
-            self.speed = min(self.speed, self.max_speed)
         else:
-            self.speed = max(0.0, self.speed - self.coasting_drag * delta_time)
+            drag = self.coasting_drag * delta_time
+            if self.speed > 0.0:
+                self.speed = max(0.0, self.speed - drag)
+            elif self.speed < 0.0:
+                self.speed = min(0.0, self.speed + drag)
+
+        self.speed = max(-self.max_speed, min(self.max_speed, self.speed))
 
     def get_last_command_time(self) -> float:
         return self.last_command_time
