@@ -323,3 +323,33 @@ def test_reverse_speed_limit():
     state = vehicle.get_state()
 
     assert state.speed == pytest.approx(-vehicle.max_speed, abs=1e-2)
+
+def test_acceleration_respects_elapsed_time():
+    vehicle = SimulatedVehicle(command_timeout=10.0)
+    vehicle.set_throttle(1.0)  # Full forward throttle
+    vehicle.last_update_time = time.monotonic() - 1.0  # Simulate 2 seconds have passed
+    vehicle.update()
+    state = vehicle.get_state()
+
+    expected_speed = min(vehicle.acceleration_rate * 1.0, vehicle.max_speed)
+    assert state.speed == pytest.approx(expected_speed, abs=1e-2)
+
+def test_acceleration_consistent_across_time_steps():
+    vehicle = SimulatedVehicle(command_timeout=10.0)
+    vehicle.set_throttle(1.0)  # Full forward throttle
+
+    # Simulate two consecutive updates with 0.5s each
+    vehicle.last_update_time = time.monotonic() - 0.5
+    vehicle.update()
+    speed_after_first_update = vehicle.get_state().speed
+
+    # Advance relative to the timestamp set during the first update
+    vehicle.last_update_time -= 0.5
+    vehicle.update()
+    speed_after_second_update = vehicle.get_state().speed
+
+    expected_speed_after_first_update = min(vehicle.acceleration_rate * 0.5, vehicle.max_speed)
+    expected_speed_after_second_update = min(vehicle.acceleration_rate * 1.0, vehicle.max_speed)
+
+    assert speed_after_first_update == pytest.approx(expected_speed_after_first_update, abs=1e-2)
+    assert speed_after_second_update == pytest.approx(expected_speed_after_second_update, abs=1e-2)
