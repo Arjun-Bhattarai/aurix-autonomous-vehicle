@@ -1,18 +1,18 @@
-from app.schemas.telemetry import VehicleTelemetry
-from pydantic import ValidationError
 import pytest
+from pydantic import ValidationError
+
+from app.schemas.telemetry import VehicleTelemetry
+
 
 def test_vehicle_telemetry_model():
-    # Create an instance of VehicleTelemetry with valid data
     telemetry_data = {
         "speed": 10.5,
         "steering": 0.5,
         "throttle": 0.8,
-        "mode": "simulation"
+        "mode": "simulation",
     }
     telemetry = VehicleTelemetry(**telemetry_data)
 
-    # Assert that the instance is created successfully and the values are correct
     assert telemetry.speed == 10.5
     assert telemetry.steering == 0.5
     assert telemetry.throttle == 0.8
@@ -20,22 +20,55 @@ def test_vehicle_telemetry_model():
     assert telemetry.is_connected is False
     assert telemetry.mode == "simulation"
 
-    # Test validation for speed (should raise ValidationError for negative speed)
-    with pytest.raises(ValidationError):
-        VehicleTelemetry(speed=-1.0, steering=0.0, throttle=0.0, brake=False, is_connected=False, mode="simulation")
+    # Negative speed within bounds is valid for reverse motion
+    reverse_telemetry = VehicleTelemetry(
+        speed=-1.0,
+        steering=0.0,
+        throttle=-0.5,
+        brake=False,
+        is_connected=False,
+        mode="simulation",
+    )
+    assert reverse_telemetry.speed == -1.0
 
-    # Test validation for steering (should raise ValidationError for out of range)
-    with pytest.raises(ValidationError):
-        VehicleTelemetry(speed=0.0, steering=2.0, throttle=0.0, brake=False, is_connected=False, mode="simulation")
-
-    # Test validation for throttle (should raise ValidationError for out of range)
-    with pytest.raises(ValidationError):
-        VehicleTelemetry(speed=0.0, steering=0.0, throttle=-2.0, brake=False, is_connected=False, mode="simulation")
-
+    # Test validation for speed out of range
     with pytest.raises(ValidationError):
         VehicleTelemetry(
-        speed=0.0,
-        steering=0.0,
-        throttle=0.0,
-        mode="drone"
-    )    
+            speed=-101.0,
+            steering=0.0,
+            throttle=0.0,
+            brake=False,
+            is_connected=False,
+            mode="simulation",
+        )
+
+    # Test validation for steering out of range
+    with pytest.raises(ValidationError):
+        VehicleTelemetry(
+            speed=0.0,
+            steering=2.0,
+            throttle=0.0,
+            brake=False,
+            is_connected=False,
+            mode="simulation",
+        )
+
+    # Test validation for throttle out of range
+    with pytest.raises(ValidationError):
+        VehicleTelemetry(
+            speed=0.0,
+            steering=0.0,
+            throttle=-2.0,
+            brake=False,
+            is_connected=False,
+            mode="simulation",
+        )
+
+    # Test validation for invalid mode literal
+    with pytest.raises(ValidationError):
+        VehicleTelemetry(
+            speed=0.0,
+            steering=0.0,
+            throttle=0.0,
+            mode="drone",
+        )
