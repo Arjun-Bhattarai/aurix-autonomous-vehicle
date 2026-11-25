@@ -1,3 +1,4 @@
+import math
 import time
 import pytest
 from pytest import raises
@@ -375,3 +376,83 @@ def test_acceleration_consistent_across_different_update_intervals():
     assert speed_a == pytest.approx(5.0, abs=1e-2)
     assert speed_b == pytest.approx(5.0, abs=1e-2)
     assert speed_b == pytest.approx(speed_a, abs=1e-2)
+
+def test_zero_steering_keeps_heading_unchanged():
+    vehicle = SimulatedVehicle(command_timeout=10.0)
+    vehicle.speed = 2.0
+    vehicle.set_steering(0.0)
+    vehicle.last_update_time = time.monotonic() - 0.5
+
+    initial_heading = vehicle.heading
+    vehicle.update()
+
+    assert vehicle.heading == pytest.approx(initial_heading, abs=1e-6)
+
+
+def test_positive_steering_while_moving_forward():
+    vehicle = SimulatedVehicle(command_timeout=10.0)
+    vehicle.speed = 2.0
+    vehicle.set_steering(1.0)
+    vehicle.last_update_time = time.monotonic() - 0.5
+
+    initial_heading = vehicle.heading
+    vehicle.update()
+
+    assert vehicle.heading < initial_heading
+
+
+def test_negative_steering_while_moving_forward():
+    vehicle = SimulatedVehicle(command_timeout=10.0)
+    vehicle.speed = 2.0
+    vehicle.set_steering(-1.0)
+    vehicle.last_update_time = time.monotonic() - 0.5
+
+    initial_heading = vehicle.heading
+    vehicle.update()
+
+    assert vehicle.heading > initial_heading
+
+
+def test_steering_does_not_change_heading_when_stationary():
+    vehicle = SimulatedVehicle(command_timeout=10.0)
+    vehicle.speed = 0.0
+    vehicle.set_steering(1.0)
+    vehicle.last_update_time = time.monotonic() - 0.5
+
+    initial_heading = vehicle.heading
+    vehicle.update()
+
+    assert vehicle.heading == pytest.approx(initial_heading, abs=1e-6)
+
+
+def test_heading_always_remains_within_bounds():
+    vehicle = SimulatedVehicle(command_timeout=10.0)
+    vehicle.speed = 2.0
+    vehicle.set_steering(1.0)
+    vehicle.last_update_time = time.monotonic() - 5.0
+
+    for _ in range(100):
+        vehicle.update()
+        assert -math.pi <= vehicle.heading <= math.pi
+
+def test_positive_steering_while_reverse():
+    vehicle = SimulatedVehicle(command_timeout=10.0)
+    vehicle.speed = -2.0
+    vehicle.set_steering(1.0)
+    vehicle.last_update_time = time.monotonic() - 0.5
+
+    initial_heading = vehicle.heading
+    vehicle.update()
+
+    assert vehicle.heading > initial_heading
+
+def test_negative_steering_while_reverse():
+    vehicle = SimulatedVehicle(command_timeout=10.0)
+    vehicle.speed = -2.0
+    vehicle.set_steering(-1.0)
+    vehicle.last_update_time = time.monotonic() - 0.5
+
+    initial_heading = vehicle.heading
+    vehicle.update()
+
+    assert vehicle.heading < initial_heading    
