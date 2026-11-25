@@ -1,7 +1,6 @@
 import time
 import pytest
 from pytest import raises
-
 from app.vehicle.simulator import SimulatedVehicle
 
 
@@ -353,3 +352,26 @@ def test_acceleration_consistent_across_time_steps():
 
     assert speed_after_first_update == pytest.approx(expected_speed_after_first_update, abs=1e-2)
     assert speed_after_second_update == pytest.approx(expected_speed_after_second_update, abs=1e-2)
+
+def test_acceleration_consistent_across_different_update_intervals():
+    vehicle_a = SimulatedVehicle(command_timeout=10.0)
+    vehicle_b = SimulatedVehicle(command_timeout=10.0)
+
+    vehicle_a.set_throttle(1.0)
+    vehicle_b.set_throttle(1.0)
+
+    # Vehicle A: one 1.0s update
+    vehicle_a.last_update_time = time.monotonic() - 1.0
+    vehicle_a.update()
+    speed_a = vehicle_a.get_state().speed
+
+    # Vehicle B: two 0.5s updates
+    vehicle_b.last_update_time = time.monotonic() - 0.5
+    vehicle_b.update()
+    vehicle_b.last_update_time -= 0.5
+    vehicle_b.update()
+    speed_b = vehicle_b.get_state().speed
+
+    assert speed_a == pytest.approx(5.0, abs=1e-2)
+    assert speed_b == pytest.approx(5.0, abs=1e-2)
+    assert speed_b == pytest.approx(speed_a, abs=1e-2)
