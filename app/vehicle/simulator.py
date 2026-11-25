@@ -37,6 +37,10 @@ class SimulatedVehicle(VehicleInterface):
         self.braking_rate: float = 8.0
         self.coasting_drag: float = 1.0
 
+        # Steering and vehicle geometry
+        self.wheelbase: float = 0.25  # meters
+        self.max_steering_angle: float = 30.0  # degrees
+
     def _heartbeat(self) -> None:
         """Strictly update the last command timestamp."""
         self.last_command_time = time.monotonic()
@@ -84,7 +88,7 @@ class SimulatedVehicle(VehicleInterface):
         self.communication_timed_out = False
 
     def get_state(self) -> VehicleTelemetry:
-        is_connected=(time.monotonic() - self.last_command_time) <= self.command_timeout #yesla chai heartbeat check garxa fresh xa ke xaina vanera 
+        is_connected = (time.monotonic() - self.last_command_time) <= self.command_timeout
         return VehicleTelemetry(
             speed=self.speed,
             steering=self.steering,
@@ -94,7 +98,7 @@ class SimulatedVehicle(VehicleInterface):
             mode="simulation",
             emergency_stopped=self.emergency_stopped,
             communication_timed_out=self.communication_timed_out,
-            last_command_time=self.last_command_time
+            heading=self.heading,
         )
 
     def update(self) -> None:
@@ -112,9 +116,18 @@ class SimulatedVehicle(VehicleInterface):
         if self.emergency_stopped:
             self.speed = 0.0
             return
-        if self.emergency_stopped:
-            self.speed = 0.0
-        elif self.brake or self.communication_timed_out:
+        # steering ko angle kata move hudi xa tyo calculation gareko 
+        steering_angle = math.radians(self.steering * self.max_steering_angle)
+        yaw_rate = -(self.speed / self.wheelbase) * math.tan(steering_angle)
+        self.heading += yaw_rate * delta_time
+
+
+
+        self.heading = (self.heading + math.pi) % (2 * math.pi) - math.pi# yo cahi heading lai -pi to pi ko range ma constrain garxa
+        
+
+
+        if self.brake or self.communication_timed_out:
             decel = self.braking_rate * delta_time
             if self.speed > 0.0:
                 self.speed = max(0.0, self.speed - decel)
