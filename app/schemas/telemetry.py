@@ -12,9 +12,4 @@ class VehicleTelemetry(BaseModel):
     mode: Literal["simulation", "hardware"]
     emergency_stopped: bool = Field(default=False, description="True if the vehicle is in an emergency stop state, False otherwise")
     communication_timed_out: bool = Field(default=False, description="True if the vehicle has experienced a communication timeout, False otherwise")
-    heading: float = Field(
-        default=0.0,
-        ge=-math.pi,
-        le=math.pi,
-        description="Vehicle heading in radians",
-    )
+    heading: float = Field(default=0.0,ge=-math.pi,le=math.pi,description="Vehicle heading in radians")
