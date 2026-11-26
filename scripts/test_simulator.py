@@ -456,3 +456,78 @@ def test_negative_steering_while_reverse():
     vehicle.update()
 
     assert vehicle.heading < initial_heading    
+
+def test_position_updates_when_moving_straight():
+    vehicle = SimulatedVehicle(command_timeout=10.0)
+    vehicle.speed = 2.0
+    vehicle.set_steering(0.0)
+    vehicle.last_update_time = time.monotonic() - 1.0
+
+    initial_x = vehicle.x
+    initial_y = vehicle.y
+    vehicle.update()
+
+    assert vehicle.x > initial_x
+    assert vehicle.y == pytest.approx(initial_y, abs=1e-6)
+    assert vehicle.x - initial_x == pytest.approx(2.0, abs=1e-2)
+
+def test_position_updates_when_heading_is_90_degrees():
+    vehicle = SimulatedVehicle(command_timeout=10.0)
+    vehicle.speed = 2.0
+    vehicle.heading = math.pi / 2  # 90 degrees
+    vehicle.set_steering(0.0)
+    vehicle.last_update_time = time.monotonic() - 1.0
+
+    initial_x = vehicle.x
+    initial_y = vehicle.y
+    vehicle.update()
+
+    assert vehicle.x == pytest.approx(initial_x, abs=1e-6)
+    assert vehicle.y > initial_y
+    assert vehicle.y - initial_y == pytest.approx(2.0, abs=1e-2)
+
+def test_position_updates_when_heading_is_45_degrees():
+    vehicle = SimulatedVehicle(command_timeout=10.0)
+    vehicle.speed = 2.0
+    vehicle.heading = math.pi / 4  # 45 degrees
+    vehicle.set_steering(0.0)
+    vehicle.last_update_time = time.monotonic() - 1.0
+
+    initial_x = vehicle.x
+    initial_y = vehicle.y
+    vehicle.update()
+
+    expected_delta = 2.0 / math.sqrt(2)  # Since speed is along the diagonal
+    assert vehicle.x - initial_x == pytest.approx(expected_delta, abs=1e-2)
+    assert vehicle.y - initial_y == pytest.approx(expected_delta, abs=1e-2)
+
+def test_position_updates_when_moving_in_reverse_at_45_degrees():
+    vehicle = SimulatedVehicle(command_timeout=10.0)
+    vehicle.speed = -2.0
+    vehicle.heading = math.pi / 4  # 45 degrees
+    vehicle.set_steering(0.0)
+    vehicle.last_update_time = time.monotonic() - 1.0
+
+    initial_x = vehicle.x
+    initial_y = vehicle.y
+    vehicle.update()
+
+    expected_delta = -2.0 / math.sqrt(2)  # Since speed is along the diagonal in reverse
+    assert vehicle.x - initial_x == pytest.approx(expected_delta, abs=1e-2)
+    assert vehicle.y - initial_y == pytest.approx(expected_delta, abs=1e-2)
+
+def test_position_updates_while_vehicle_is_turning():
+    vehicle = SimulatedVehicle()
+    initial_x = vehicle.x
+    initial_y = vehicle.y
+
+    vehicle.speed = 2.0
+    vehicle.set_steering(0.5)
+    vehicle._heartbeat()
+
+    time.sleep(1.0)
+    vehicle.update()
+
+    assert vehicle.x > initial_x
+    assert vehicle.y < initial_y
+    assert vehicle.heading < 0.0
