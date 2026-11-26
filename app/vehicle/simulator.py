@@ -1,9 +1,7 @@
 import math
 import time
-import pytest
-from pytest import raises
-from app.vehicle.interface import VehicleInterface
 from app.schemas.telemetry import VehicleTelemetry
+from app.vehicle.interface import VehicleInterface
 
 
 class SimulatedVehicle(VehicleInterface):
@@ -16,10 +14,13 @@ class SimulatedVehicle(VehicleInterface):
             raise ValueError(
                 f"command_timeout must be a finite number greater than 0 seconds, got {command_timeout}"
             )
+
         self.steering: float = 0.0
         self.throttle: float = 0.0
         self.speed: float = 0.0
         self.heading: float = 0.0
+        self.x: float = 0.0
+        self.y: float = 0.0
         self.brake: bool = False
         self.emergency_stopped: bool = False
 
@@ -76,15 +77,13 @@ class SimulatedVehicle(VehicleInterface):
         self.throttle = 0.0
         self.speed = 0.0
 
-    def reset_communication_timeout(self):
+    def reset_communication_timeout(self) -> None:
         time_since_last_command = time.monotonic() - self.last_command_time
-        
         if time_since_last_command > self.command_timeout:
             raise RuntimeError(
                 "Cannot reset communication timeout: "
                 "No fresh controller command received."
             )
-        
         self.communication_timed_out = False
 
     def get_state(self) -> VehicleTelemetry:
@@ -116,16 +115,21 @@ class SimulatedVehicle(VehicleInterface):
         if self.emergency_stopped:
             self.speed = 0.0
             return
-        # steering ko angle kata move hudi xa tyo calculation gareko 
+
+        # Kinematic bicycle model: positive steering = right (clockwise = negative yaw rate)
         steering_angle = math.radians(self.steering * self.max_steering_angle)
         yaw_rate = -(self.speed / self.wheelbase) * math.tan(steering_angle)
-        self.heading += yaw_rate * delta_time
 
+        start_heading = self.heading
+        mid_heading = start_heading + 0.5 * yaw_rate * delta_time
+        end_heading = start_heading + yaw_rate * delta_time
 
+        self.x += self.speed * math.cos(mid_heading) * delta_time
+        self.y += self.speed * math.sin(mid_heading) * delta_time
 
-        self.heading = (self.heading + math.pi) % (2 * math.pi) - math.pi# yo cahi heading lai -pi to pi ko range ma constrain garxa
-        
+        self.heading = ((end_heading + math.pi) % (2 * math.pi)) - math.pi
 
+    
 
         if self.brake or self.communication_timed_out:
             decel = self.braking_rate * delta_time
