@@ -64,3 +64,10 @@ def test_calculate_direction_rejects_bool_index():
 
     with pytest.raises(TypeError):
         planner.calculate_direction(True)  # type: ignore[arg-type]
+
+        
+def test_calculate_direction_zero_length_segment():
+    planner = PathPlanner([Waypoint(0, 0), Waypoint(0, 0)])
+
+    assert planner.calculate_direction(0) is None
+    assert planner.calculate_path_length() == 0.0
